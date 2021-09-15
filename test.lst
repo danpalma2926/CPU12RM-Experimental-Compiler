@@ -1,10 +1,10 @@
-ORG $0000
-0x0000   18 06          ABA
-0x0002   10 ii          ANDCC
-0x0004   47             ASRA
-0x0005   78 hh ll       ASL
-ORG $4000
-0x4000   89 ii          ADCA
-0x4002   99 dd          ADCA
-0x4004   B9 hh ll       ADCA
-0x4007 END
+0x0000   -- --          ORG
+0x0000   18 06          ABA    LI=2
+0x0002   10 ii          ANDCC  LI=2
+0x0004   47             ASRA   LI=1
+0x0005   78 hh ll       ASL    LI=3
+0x4000   -- --          ORG
+0x4000   89 ii          ADCA   LI=2
+0x4002   99 dd          ADCA   LI=2
+0x4004   B9 hh ll       ADCA   LI=3
+0x4007   -- --          END

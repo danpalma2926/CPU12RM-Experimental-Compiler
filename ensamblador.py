@@ -114,30 +114,47 @@ def main():
         # Si la linea actual cuenta con el mnemonico ORG, establecer como referencia a ese valor
         if instrucciones_linea[0] == "ORG":
             org = conv_decimal(instrucciones_linea[1])
+            archivo_lista += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", instrucciones_linea[0]) + "\n"
             #print(instrucciones_linea[0], instrucciones_linea[1])
-            archivo_lista += instrucciones_linea[0] + " " + instrucciones_linea[1] + "\n"
+        # Si no, revisar si el primer argumento de la línea es un mnemónico válido
         elif instrucciones_linea[0] in mnemonicos:
+            # Si solo tiene un argumento, asumir que es de tipo inherente
             if len(instrucciones_linea) == 1:
-                bytes_instruccion = mnemonicos[instrucciones_linea[0]]["INH"]
+                try: 
+                    bytes_instruccion = mnemonicos[instrucciones_linea[0]]["INH"]
+                except KeyError as e:
+                    archivo_lista += f"'{instrucciones_linea[0]}' no puede ser de tipo inherente"
+                    break;
+            # Si el segundo argumento contiene un numeral al principio, asumir que es de tipo inmediato 
             elif instrucciones_linea[1].startswith("#"):
-                bytes_instruccion = mnemonicos[instrucciones_linea[0]]["IMM"]
+                try:
+                    bytes_instruccion = mnemonicos[instrucciones_linea[0]]["IMM"]
+                except KeyError as e:
+                    archivo_lista += f"'{instrucciones_linea[0]}' no puede ser de tipo inmediato"
+                    break;
+            # Si no cumple con las 2 condiciones anteriores, entonces
             else:
                 valor = conv_decimal(instrucciones_linea[1])
-                if valor < 255:
-                    bytes_instruccion = mnemonicos[instrucciones_linea[0]]["DIR"]
-                elif valor < 65536:
-                    bytes_instruccion = mnemonicos[instrucciones_linea[0]]["EXT"]
+                try:
+                    if valor < 256:
+                        bytes_instruccion = mnemonicos[instrucciones_linea[0]]["DIR"]
+                    elif valor < 65536:
+                        bytes_instruccion = mnemonicos[instrucciones_linea[0]]["EXT"]
+                except KeyError as e:
+                    archivo_lista += f"'{instrucciones_linea[0]} {instrucciones_linea[1]}' no es compatible con los modos de direccionamiento soportados"
+                    break;
             byte_str = ""
             for byte in bytes_instruccion:
                 byte_str += byte + " "
             #print("0x" + hex(org)[2:].zfill(4) + " " + byte_str + instrucciones_linea[0].center(0)) 
             #print("{:4s} {:14s} {:}".format("0x" + hex(org)[2:].zfill(4), byte_str, instrucciones_linea[0]))
-            archivo_lista += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), byte_str, instrucciones_linea[0]) + "\n"
+            archivo_lista += "{:8s} {:14s} {:6} {}".format("0x" + hex(org)[2:].zfill(4), byte_str, instrucciones_linea[0], "LI=" + str(len(bytes_instruccion))) + "\n"
             org += len(bytes_instruccion)
             continue
+            # Si el primer argumento contiene el mnemonico end, 
         elif instrucciones_linea[0] == "END":
             #print(hex(org), "END")
-            archivo_lista += hex(org) + " END"
+            archivo_lista += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", instrucciones_linea[0]) + "\n"
             continue
         else:
             print("Mnemonico no soportado!!!")
