@@ -106,6 +106,7 @@ def main():
     # Implementar manejo de errores aqui
 
     org = 0
+    archivo_lista = ""
     # Ejecutar línea por línea
     for line in linea_instrucciones:
         # Convertir linea en lista de mnemonicos y valores
@@ -113,7 +114,8 @@ def main():
         # Si la linea actual cuenta con el mnemonico ORG, establecer como referencia a ese valor
         if instrucciones_linea[0] == "ORG":
             org = conv_decimal(instrucciones_linea[1])
-            print(instrucciones_linea[0], instrucciones_linea[1])
+            #print(instrucciones_linea[0], instrucciones_linea[1])
+            archivo_lista += instrucciones_linea[0] + " " + instrucciones_linea[1] + "\n"
         elif instrucciones_linea[0] in mnemonicos:
             if len(instrucciones_linea) == 1:
                 bytes_instruccion = mnemonicos[instrucciones_linea[0]]["INH"]
@@ -125,15 +127,23 @@ def main():
                     bytes_instruccion = mnemonicos[instrucciones_linea[0]]["DIR"]
                 elif valor < 65536:
                     bytes_instruccion = mnemonicos[instrucciones_linea[0]]["EXT"]
-            print(hex(org), bytes_instruccion, instrucciones_linea[0]) 
+            byte_str = ""
+            for byte in bytes_instruccion:
+                byte_str += byte + " "
+            #print("0x" + hex(org)[2:].zfill(4) + " " + byte_str + instrucciones_linea[0].center(0)) 
+            #print("{:4s} {:14s} {:}".format("0x" + hex(org)[2:].zfill(4), byte_str, instrucciones_linea[0]))
+            archivo_lista += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), byte_str, instrucciones_linea[0]) + "\n"
             org += len(bytes_instruccion)
             continue
         elif instrucciones_linea[0] == "END":
-            print(hex(org), "END")
+            #print(hex(org), "END")
+            archivo_lista += hex(org) + " END"
             continue
         else:
             print("Mnemonico no soportado!!!")
-            break;
-
+            break
+    print(archivo_lista)
+    with open("test.lst", "w") as file:
+        file.write(archivo_lista)
 if __name__ == "__main__":
     main()
