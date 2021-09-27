@@ -1,5 +1,5 @@
 """
-PRACTICA 4/18
+PRACTICA 4/20
 
 PALMA GARCÍA DANIEL
 218292653
@@ -42,7 +42,7 @@ mnemonicos = {"ABA": {"INH": ["18","06"]},
                        "IDX2": ["EB", "xb", "ee", "ff"],
                        "[D,IDX]": ["EB", "xb"],
                        "[IDX2]": ["EB", "xb", "ee", "ff"]},
-              "ADDD": {"IMM": ["C3", "ii"],
+              "ADDD": {"IMM": ["C3", "ii", "jj"],
                        "DIR": ["D3", "dd"],
                        "EXT": ["F3", "hh", "ll"],
                        "IDX": ["E3", "xb"],
@@ -99,7 +99,7 @@ def conv_decimal(dato):
 
 def main():
     # Abrir archivo y separar por lineas
-    with open("test.asm", "r") as file:
+    with open("P4.asm", "r") as file:
         linea_instrucciones = file.readlines()
     
     # Verificar que comience con ORG y que termine con END
@@ -157,10 +157,10 @@ def main():
             archivo_lista += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", instrucciones_linea[0]) + "\n"
             continue
         else:
-            print("Mnemonico no soportado!!!")
+            #print("Mnemonico no soportado!!!")
             break
     print(archivo_lista)
-    with open("test.lst", "w") as file:
+    with open("P4.lst", "w") as file:
         file.write(archivo_lista)
 if __name__ == "__main__":
     main()
