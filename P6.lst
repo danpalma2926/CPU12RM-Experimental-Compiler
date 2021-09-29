@@ -1,0 +1,18 @@
+0x4000   -- --          ORG
+0x4000   89 ii          ADCA   LI=2
+0x4002   99 dd          ADCA   LI=2
+0x0000   -- --          START
+0x0000   99 dd          ADCA   LI=2
+0x0002   B9 hh ll       ADCA   LI=3
+0x0005   C3 ii jj       ADDD   LI=3
+0x0008   D3 dd          ADDD   LI=2
+0x000a   00             DC.B
+0x000b   0A             DC.B
+0x000c   0A 0B             DC.B
+0x000e   00 00 00 00 00 00 00 00 00 00              BSZ
+0x0018   02 02 02             FILL
+0x001b   00 00          DC.W
+0x001d   00 01 00 02             DC.W
+0x0021   48 4F 4C 41              FCC   'HOLA'
+0x0025   0A             FCB
+0x0026   -- --          END
