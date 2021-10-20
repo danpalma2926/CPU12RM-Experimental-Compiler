@@ -1,13 +1,6 @@
-"""
-PRACTICA 9/20
-
-PALMA GARCÍA DANIEL
-218292653
-
-SEMINARIO DE SOLUCION DE PROBLEMAS DE TRADUCTORES DE LENGUAJE I
-
-"""
+from io import FileIO
 import pdb
+import sys
 
 directivas = {"ORG", "BSZ", "END", "FILL", "START", "DC.W", "EQU", "FCC", "DC.B", "FCB", "ZMB"} 
 mnemonicos = {"ABA": {"INH": ["18","06"]}, 
@@ -329,7 +322,13 @@ mnemonicos = {"ABA": {"INH": ["18","06"]},
               "XGDX": {"INH": ["B7", "C5"]},
               "XGDY": {"INH": ["B7", "C6"]}
             }
-
+reglas_rel9 = {"DBEQ": {"A": [{"POS": "00"}, {"NEG": "10"}],
+                        "B": [{"POS": "01"}, {"NEG": "11"}],
+                        "D": [{"POS": "04"}, {"NEG": "14"}],
+                        "X": [{"POS": "05"}, {"NEG": "15"}],
+                        "Y": [{"POS": "06"}, {"NEG": "16"}],
+                        "SP": [{"POS": "07"}, {"NEG": "17"}],
+                        }}
 def conv_decimal(dato):
     if dato.startswith("$"):
         return int(dato.replace("$", "0x"), 16)
@@ -340,93 +339,128 @@ def conv_decimal(dato):
     else:
         return int(dato)
 
-def conv_hexadecimal(dato):
-    pass
+def convertir_variables_a_decimales(lista_lineas):
+    nueva_lista = []
+    #print("BEFORE: ******************************")
+    #for linea in lista_lineas:
+        #print(linea, end='')
+    #pdb.set_trace()
+    for linea in lista_lineas:
+        linea = linea.replace("\n", "")
+        linea = linea.split(" ")
+        nueva_linea = []
+        for elemento in linea:
+            if elemento.startswith("#"):
+                elemento = elemento[1:]
+                elemento = "#" + str(conv_decimal(elemento))
+            if elemento.startswith("@") or elemento.startswith("$") or elemento.startswith("%"):
+                elemento = str(conv_decimal(elemento))
+            nueva_linea.append(elemento)
+        nueva_lista.append(nueva_linea)
+    return nueva_lista
 
-def interpretar_directiva(lista_mnemonicos, archivo_lst, org):
+def interpretar_directiva(lista_mnemonicos, archivo_lst, org, segunda_parte):
     if lista_mnemonicos[0] == "ORG":
         org = conv_decimal(lista_mnemonicos[1])
         archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", lista_mnemonicos[0]) + "\n"
-        return archivo_lst, org
+        segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
+        return archivo_lst, org, segunda_parte
     elif lista_mnemonicos[0] == "BSZ":
         bytes_a_asignar = int(lista_mnemonicos[1])
         archivo_lst += "{:9s}".format("0x" + hex(org)[2:].zfill(4))
+        bsz_list = []
         for byte in range(0, bytes_a_asignar):
             archivo_lst += "{:2s}".format("00") + " "
+            bsz_list.append("00")
         archivo_lst += "{:>16}".format(lista_mnemonicos[0]) + "\n"
+        segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(bsz_list), lista_mnemonicos])
         org += bytes_a_asignar
-        return archivo_lst, org
+        return archivo_lst, org, segunda_parte
     elif lista_mnemonicos[0] == "FILL":
         operadores = lista_mnemonicos[1].split(",")
         constante = operadores[0]
         bytes_a_asignar = int(operadores[1])
         archivo_lst += "{:9s}".format("0x" + hex(org)[2:].zfill(4))
+        fill_list = []
         for byte in range(0, bytes_a_asignar):
             archivo_lst += "{:2s}".format(hex(int(constante))[2:].zfill(2).upper()) + " "
+            fill_list.append(constante)
         archivo_lst += "{:>16}".format(lista_mnemonicos[0]) + "\n"
+        segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(fill_list), lista_mnemonicos])
         org += bytes_a_asignar
-
-        return archivo_lst, org
+        #[TODO] add segunda_parte list
+        return archivo_lst, org, segunda_parte
     elif lista_mnemonicos[0] == "START":
         org = 0
         archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", lista_mnemonicos[0]) + "\n"
-        return archivo_lst, org
+        #[TODO] add segunda_parte list
+        segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
+        return archivo_lst, org, segunda_parte
     elif lista_mnemonicos[0] == "DC.W":
         if len(lista_mnemonicos) == 1:
             archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "00 00", lista_mnemonicos[0]) + "\n"
+            segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["00"," 00"]), lista_mnemonicos])
             org += 2
         else:
             bytes_a_asignar = lista_mnemonicos[1].split(",")
             archivo_lst += "{:9s}".format("0x" + hex(org)[2:].zfill(4))
+            dcw_list = []
             for byte in bytes_a_asignar:
                 if int(byte) < 256:
                     archivo_lst += "{:2s}".format("00") + " "
                     archivo_lst += "{:2s}".format(hex(int(byte))[2:].zfill(2).upper()) + " "
+                    dcw_list.append("00")
+                    dcw_list.append(hex(int(byte))[2:].zfill(2).upper())
                 else:
                     # Implementar manejo de valores mayores a 255
                     pass
             archivo_lst += "{:>16}".format(lista_mnemonicos[0]) + "\n"
+            segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(dcw_list), lista_mnemonicos])
             org += len(bytes_a_asignar) * 2
-        return archivo_lst, org
+        #[TODO] add segunda_parte list
+        return archivo_lst, org, segunda_parte
     elif lista_mnemonicos[0] == "DC.B":
         #pdb.set_trace()
         if len(lista_mnemonicos) == 1:
             archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "00", lista_mnemonicos[0]) + "\n"
+            segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["00"]), lista_mnemonicos])
             org += 1
-        # elif len(lista_mnemonicos) == 2:
-        #     org += 1
-        #     archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), hex(int(lista_mnemonicos[1])), lista_mnemonicos[0]) + "\n"
         else:
             bytes_a_asignar = lista_mnemonicos[1].split(",")
-            #pdb.set_trace()
+            dcb_list = []
             archivo_lst += "{:9s}".format("0x" + hex(org)[2:].zfill(4))
             for byte in bytes_a_asignar:
                 archivo_lst += "{:2s}".format(hex(int(byte))[2:].zfill(2).upper()) + " "
+                dcb_list.append(hex(int(byte))[2:].zfill(2).upper())
             archivo_lst += "{:>16}".format(lista_mnemonicos[0]) + "\n"
+            segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(dcb_list), lista_mnemonicos])
             org += len(bytes_a_asignar)
-        return archivo_lst, org
-    elif lista_mnemonicos[0] == "FCC":
+        return archivo_lst, org, segunda_parte
+    elif lista_mnemonicos[0] == "FCC": # missing segunda_parte implementation
         cadena = lista_mnemonicos[1].replace("/", "")
         archivo_lst += "{:9s}".format("0x" + hex(org)[2:].zfill(4))
         for caracter in cadena:
             archivo_lst += "{:2s}".format(hex(int(ord(caracter)))[2:].zfill(2).upper()) + " "
         archivo_lst += "{:>16}".format(lista_mnemonicos[0]) + "   '" + cadena + "'" + "\n"
         org += len(cadena)
-
-        return archivo_lst, org
-    elif lista_mnemonicos[0] == "FCB":
+        #[TODO] add segunda_parte list
+        return archivo_lst, org, segunda_parte
+    elif lista_mnemonicos[0] == "FCB": # missing segunda_parte implementation
         if int(lista_mnemonicos[1]) < 256:
             archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), hex(int(lista_mnemonicos[1]))[2:].zfill(2).upper(), lista_mnemonicos[0]) + "\n"
         else:
             # Implementar manejo de valores mayores a 255
             pass
         org += 1
-        return archivo_lst, org
+        #[TODO] add segunda_parte list
+        return archivo_lst, org, segunda_parte
     elif lista_mnemonicos[0] == "END":
         archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", lista_mnemonicos[0]) + "\n"
-        return archivo_lst, org
+        #[TODO] add segunda_parte list
+        segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
+        return archivo_lst, org, segunda_parte
 
-def interpretar_instruccion(lista_mnemonicos, archivo_lst, org):
+def interpretar_instruccion(lista_mnemonicos, archivo_lst, org, segunda_parte):
                 # Si solo tiene un argumento, asumir que es de tipo inherente
     bytes_instruccion = {}
     if len(lista_mnemonicos) == 1:
@@ -443,7 +477,15 @@ def interpretar_instruccion(lista_mnemonicos, archivo_lst, org):
             archivo_lst += f"'{lista_mnemonicos[0]}' no puede ser de tipo inmediato"
             #break;
     # Si no cumple con las 2 condiciones anteriores, entonces
+    elif es_etiqueta(lista_mnemonicos[1]):
+        if "REL" in mnemonicos[lista_mnemonicos[0]].keys():
+            bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["REL"]
+    elif "," in lista_mnemonicos[1]:
+        if "REL" in mnemonicos[lista_mnemonicos[0]].keys():
+            bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["REL"]
+
     else:
+        
         valor = conv_decimal(lista_mnemonicos[1])
         try:
             if valor < 256:
@@ -456,89 +498,252 @@ def interpretar_instruccion(lista_mnemonicos, archivo_lst, org):
     byte_str = ""
     for byte in bytes_instruccion:
         byte_str += byte + " "
-    archivo_lst += "{:8s} {:14s} {:6} {}".format("0x" + hex(org)[2:].zfill(4), byte_str, lista_mnemonicos[0], "LI=" + str(len(bytes_instruccion))) + "\n"
+    if len(lista_mnemonicos) == 1:
+        archivo_lst += "{:8s} {:14s} {:17} {}".format("0x" + hex(org)[2:].zfill(4), byte_str, lista_mnemonicos[0], "LI=" + str(len(bytes_instruccion))) + "\n"
+    if len(lista_mnemonicos) == 2:
+        archivo_lst += "{:8s} {:14s} {:6} {:10} {}".format("0x" + hex(org)[2:].zfill(4), byte_str, lista_mnemonicos[0], lista_mnemonicos[1], "LI=" + str(len(bytes_instruccion))) + "\n"
+    segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(bytes_instruccion), list(lista_mnemonicos)])
     org += len(bytes_instruccion)
-    return archivo_lst, org
+    return archivo_lst, org, segunda_parte
 
-def main():
-    # Abrir archivo y separar por lineas
-    with open("P6.asm", "r") as file:
+def es_etiqueta(elemento):
+    if (elemento not in directivas and
+                elemento not in mnemonicos and
+                not elemento.startswith("#") and
+                not elemento[0].isdigit() and
+                "," not in elemento):
+                return True
+    else:
+        False
+
+def tohex(val, nbits):
+  return hex((val + (1 << nbits)) % (1 << nbits))
+
+def dividir_en_bytes(valor_decimal):
+    if valor_decimal > 0:
+        hexadecimal = hex(valor_decimal)[2:].zfill(4).upper()
+    elif valor_decimal < 0:
+        hexadecimal = tohex(valor_decimal, 16)[2:].zfill(4).upper()
+    highbyte = hexadecimal[:2]
+    lowbyte = hexadecimal[2:]
+    return highbyte, lowbyte
+
+def calculo_de_saltos(instrucciones_parseadas, etiquetas):
+    archivo_final = []
+    i = 0
+    for linea in instrucciones_parseadas:
+        archivo_final.append(list(linea.copy()))
+        if linea[1] != ["--", "--"]:
+            if linea[1][1] == "ii":
+                if len(linea[1]) == 3:
+                    print("Inmediato 16: ", linea[1], linea[2], end="")
+                    valor_convertido = int(linea[2][1].replace("#", ""))
+                    if valor_convertido < 256:
+                        archivo_final[i][1][1] = "00"
+                        archivo_final[i][1][2] = hex(valor_convertido)[2:].upper().zfill(2)
+                        print("  -->  ", archivo_final[i])
+                    elif valor_convertido > 256 and valor_convertido < 65356:
+                        highbyte, lowbyte = dividir_en_bytes(valor_convertido)
+                        archivo_final[i][1][1] = highbyte
+                        archivo_final[i][1][2] = lowbyte
+                        print("  -->  ", archivo_final[i])
+                    else:
+                        archivo_final[i][1][1] = ["  FDR  "]
+                        print("  -->  ", archivo_final[i])
+                else:
+                    print("Inmediato 8: ",linea[1], linea[2], end="")
+                    valor_convertido = int(linea[2][1].replace("#", ""))
+                    if valor_convertido < 256:
+                        archivo_final[i][1][1] = hex(valor_convertido)[2:].upper().zfill(2)
+                        print("  -->  ", archivo_final[i])
+                    else:
+                        archivo_final[i][1][1] = ["  FDR  "]
+                        print("  -->  ", archivo_final[i])
+            elif linea[1][1] == "dd":
+                print("Inmediato 8: ",linea[1], linea[2], end="")
+                valor_convertido = int(linea[2][1])
+                if valor_convertido < 256:
+                    archivo_final[i][1][1] = hex(valor_convertido)[2:].upper().zfill(2)
+                    print("  -->  ", archivo_final[i])
+                else:
+                    archivo_final[i][1][1] = ["  FDR  "]
+                    print("  -->  ", archivo_final[i])
+            elif linea[1][1] == "hh":
+                print("Inmediato 16: ", linea[1], linea[2], end="")
+                valor_convertido = int(linea[2][1].replace("#", ""))
+                if valor_convertido < 256:
+                    archivo_final[i][1][1] = "00"
+                    archivo_final[i][1][2] = hex(valor_convertido)[2:].upper().zfill(2)
+                    print("  -->  ", archivo_final[i])
+                elif valor_convertido > 256 and valor_convertido < 65356:
+                    highbyte, lowbyte = dividir_en_bytes(valor_convertido)
+                    archivo_final[i][1][1] = highbyte
+                    archivo_final[i][1][2] = lowbyte
+                    print("  -->  ", archivo_final[i])
+                else:
+                    archivo_final[i][1][1] = ["  FDR  "]
+                    print("  -->  ", archivo_final[i])
+            elif linea[1][1] == "rr":
+                print("Relativo: ", linea[1], linea[2], end="")
+                if linea[2][1] in etiquetas:
+                    archivo_final[i][2][1] = etiquetas[linea[2][1]]
+                direccion_actual = int(linea[0][2:],16) + len(linea[1])
+                direccion_salto = int(archivo_final[i][2][1],16)
+                direccion_final = direccion_salto - direccion_actual
+                direccion_final_str = tohex(direccion_final, 8)[2:].upper()
+                #condicionales validacion de rango
+                if direccion_salto < direccion_actual and direccion_final > -128:
+                    archivo_final[i][1][1] = direccion_final_str
+                    print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
+                    print("  -->  ", archivo_final[i], "Salto Negativo")
+                elif direccion_salto > direccion_actual and direccion_final < 128:
+                    archivo_final[i][1][1] = direccion_final_str
+                    print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
+                    print("  -->  ", archivo_final[i], "Salto Positivo")
+                else:
+                    archivo_final[i][1][1] = "FDR"
+                    print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
+                    print("  -->  ", archivo_final[i], "ERROR!")
+                pass
+            elif linea[1][1] == "lb":
+
+                #pdb.set_trace()
+                print("Relativo (Especial): ", linea[1], linea[2], end='')
+
+                #dividir mnemonico
+                registro = linea[2][1].split(",")[0]
+                direccion_salto = linea[2][1].split(",")[1]
+
+                if direccion_salto in etiquetas:
+                    archivo_final[i][2][1] = archivo_final[i][2][1].replace(direccion_salto ,etiquetas[direccion_salto])
+                    direccion_salto = int(etiquetas[direccion_salto], 16)
+                direccion_actual = int(linea[0][2:],16) + len(linea[1])
+                direccion_final = direccion_salto - direccion_actual
+                direccion_final_str = tohex(direccion_final, 8)[2:].upper()
+                #pdb.set_trace()
+                print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
+                if linea[2][0] in reglas_rel9:
+                    if registro in reglas_rel9[linea[2][0]]:
+                        if direccion_salto > direccion_actual and direccion_final > 0:
+                            archivo_final[i][1][1] = reglas_rel9[linea[2][0]][registro][0]["POS"]
+                            archivo_final[i][1][2] = direccion_final_str.zfill(2)
+                        elif direccion_salto < direccion_actual and direccion_final < 0:
+                            archivo_final[i][1][1] = reglas_rel9[linea[2][0]][registro][1]["NEG"]
+                            archivo_final[i][1][2] = direccion_final_str.zfill(2)
+                        print("  -->  ", archivo_final[i], "Salto Positivo")
+                        #pdb.set_trace()
+                        
+                pass
+
+
+            elif len(linea[1]) > 2:
+                if linea[1][2] == "qq":
+                    print("Relativo 16: ", linea[1], linea[2], end='')
+                    if linea[2][1] in etiquetas:
+                        archivo_final[i][2][1] = etiquetas[linea[2][1]]
+                    direccion_actual = int(linea[0][2:],16) + len(linea[1])
+                    direccion_salto = int(archivo_final[i][2][1],16)
+                    direccion_final = direccion_salto - direccion_actual
+                    direccion_final_str = tohex(direccion_final, 16)[2:].upper()
+                    #condicionales validacion de rango
+                    if direccion_salto < direccion_actual and direccion_final > -32768:
+                        #archivo_final[i][1][2] = direccion_final_str
+                        highbyte, lowbyte = dividir_en_bytes(direccion_final)
+                        archivo_final[i][1][2] = highbyte
+                        archivo_final[i][1][3] = lowbyte
+                        print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
+                        print("  -->  ", archivo_final[i], "Salto Negativo")
+                    elif direccion_salto > direccion_actual and direccion_final < 32767:
+                        archivo_final[i][1][2] = direccion_final_str
+                        print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
+                        print("  -->  ", archivo_final[i], "Salto Positivo")
+                    else:
+                        archivo_final[i][1][1] = "FDR"
+                        print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
+                        print("  -->  ", archivo_final[i], "ERROR!")
+                        pass
+                else:
+                    print("Inherente: ", linea[1], linea[2])    
+            else:
+                print("Inherente: ", linea[1], linea[2])
+        i += 1
+    return archivo_final
+
+def main(filename):
+    #pdb.set_trace()
+    with open(filename, "r") as file:
         linea_instrucciones = file.readlines()
-
-
-    # Implementar manejo de errores aqui
-
+    
+    archivo_convertido = convertir_variables_a_decimales(linea_instrucciones)
+    #print("\nAFTER: ****************************")
+    #for linea in archivo_convertido:
+        #print(linea)
     org = 0
     archivo_lista = ""
     etiquetas = {}
-    #pdb.set_trace()
-    # Ejecutar línea por línea
-    for line in linea_instrucciones:
+    segunda_parte = []
+
+    for linea in archivo_convertido:
+        for elemento in linea:
+            if (es_etiqueta(elemento)):
+                #print(elemento)
+                etiquetas[elemento] = "xx"
+
+    for linea in archivo_convertido:
         # Convertir linea en lista de mnemonicos y valores
-        instrucciones_linea = line.replace("\n", "").split(" ")
-        #pdb.set_trace()
+        instrucciones_linea = linea
         # Si la linea actual cuenta con el mnemonico ORG, establecer como referencia a ese valor
         if instrucciones_linea[0] in directivas:
-            archivo_lista, org = interpretar_directiva(instrucciones_linea, archivo_lista, org)
-            #org = conv_decimal(instrucciones_linea[1])
-            #archivo_lista += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", instrucciones_linea[0]) + "\n"
-        # Si no, revisar si el primer argumento de la línea es un mnemónico válido
+            archivo_lista, org, segunda_parte = interpretar_directiva(instrucciones_linea, archivo_lista, org, segunda_parte)
+            # Si no, revisar si el primer argumento de la línea es un mnemónico válido
         elif instrucciones_linea[0] in mnemonicos:
             # Si solo tiene un argumento, asumir que es de tipo inherente
-            archivo_lista, org = interpretar_instruccion(instrucciones_linea, archivo_lista, org)
-            # if len(instrucciones_linea) == 1:
-            #     try: 
-            #         bytes_instruccion = mnemonicos[instrucciones_linea[0]]["INH"]
-            #     except KeyError as e:
-            #         archivo_lista += f"'{instrucciones_linea[0]}' no puede ser de tipo inherente"
-            #         break;
-            # # Si el segundo argumento contiene un numeral al principio, asumir que es de tipo inmediato 
-            # elif instrucciones_linea[1].startswith("#"):
-            #     try:
-            #         bytes_instruccion = mnemonicos[instrucciones_linea[0]]["IMM"]
-            #     except KeyError as e:
-            #         archivo_lista += f"'{instrucciones_linea[0]}' no puede ser de tipo inmediato"
-            #         break;
-            # # Si no cumple con las 2 condiciones anteriores, entonces
-            # else:
-            #     valor = conv_decimal(instrucciones_linea[1])
-            #     try:
-            #         if valor < 256:
-            #             bytes_instruccion = mnemonicos[instrucciones_linea[0]]["DIR"]
-            #         elif valor < 65536:
-            #             bytes_instruccion = mnemonicos[instrucciones_linea[0]]["EXT"]
-            #     except KeyError as e:
-            #         archivo_lista += f"'{instrucciones_linea[0]} {instrucciones_linea[1]}' no es compatible con los modos de direccionamiento soportados"
-            #         break;
-            # byte_str = ""
-            # for byte in bytes_instruccion:
-            #     byte_str += byte + " "
-            # archivo_lista += "{:8s} {:14s} {:6} {}".format("0x" + hex(org)[2:].zfill(4), byte_str, instrucciones_linea[0], "LI=" + str(len(bytes_instruccion))) + "\n"
-            # org += len(bytes_instruccion)
+            archivo_lista, org , segunda_parte = interpretar_instruccion(instrucciones_linea, archivo_lista, org, segunda_parte)
             continue
         else:
-            if instrucciones_linea[0] not in etiquetas:
+            if instrucciones_linea[0] in etiquetas:
+                #print(instrucciones_linea)
                 if instrucciones_linea[1] == "EQU":
                     etiquetas[instrucciones_linea[0]] = hex(int(instrucciones_linea[2]))[2:].zfill(4)
                 else:
-                    if instrucciones_linea[1] != 'END':
-                        etiquetas[instrucciones_linea[0]] = hex(int(instrucciones_linea[1]))[2:].zfill(4)
-                        archivo_lista, org = interpretar_instruccion(instrucciones_linea[1:], archivo_lista, org)
-                    else:
-                        archivo_lista, org = interpretar_directiva(instrucciones_linea[1:], archivo_lista, org)
+                    if instrucciones_linea[1] not in directivas:
+                        #pdb.set_trace()
                         etiquetas[instrucciones_linea[0]] = hex(org)[2:].zfill(4)
+                        archivo_lista, org, segunda_parte = interpretar_instruccion(instrucciones_linea[1:], archivo_lista, org, segunda_parte)
+                    else:
+                        etiquetas[instrucciones_linea[0]] = hex(org)[2:].zfill(4)
+                        archivo_lista, org, segunda_parte = interpretar_directiva(instrucciones_linea[1:], archivo_lista, org, segunda_parte)
                         break;
             else:
                 print("Etiqueta repetida!!!")
-                break
-    print(archivo_lista)
-    print(etiquetas)
-    with open("P6.lst", "w") as file:
+                #break
+    #print(archivo_lista)
+    #print(etiquetas)
+
+    #print(segunda_parte)
+    archivo_final = calculo_de_saltos(segunda_parte, etiquetas)
+
+    with open("P9.lst", "w") as file:
         file.write(archivo_lista)
     
-    with open("p6.tabsim", "w") as file:
+    with open("P9.tabsim", "w") as file:
         for k, v in etiquetas.items():
             file.writelines(v + "\t" + k + "\n")
     
+    with open("P9.lst2", "w") as file:
+        for linea in archivo_final:
+            linea_str = ""
+            linea_str += linea[0] + " "
+            for byte in linea[1]:
+                linea_str += byte + " "
+            linea_str += "\t\t"
+            for mnemonico in linea[2]:
+                linea_str += mnemonico + " "
+             
+            file.writelines(linea_str + "\n")
+
 if __name__ == "__main__":
-    main()
+    try:
+        main(sys.argv[1])
+    except FileExistsError:
+        print("ERROR! Por favor introduzca el nombre del archivo ASM")
