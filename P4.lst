@@ -1,8 +1,8 @@
 0x4000   -- --          ORG
-0x4000   18 06          ABA    LI=2
-0x4002   89 ii          ADCA   LI=2
-0x4004   99 dd          ADCA   LI=2
-0x4006   B9 hh ll       ADCA   LI=3
-0x4009   C3 ii jj       ADDD   LI=3
-0x400c   D3 dd          ADDD   LI=2
+0x4000   18 06          ABA               LI=2
+0x4002   89 ii          ADCA   #30        LI=2
+0x4004   99 dd          ADCA   30         LI=2
+0x4006   B9 hh ll       ADCA   300        LI=3
+0x4009   C3 ii jj       ADDD   #15        LI=3
+0x400c   D3 dd          ADDD   15         LI=2
 0x400e   -- --          END

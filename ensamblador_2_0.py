@@ -348,6 +348,8 @@ reglas_rel9 = {"DBEQ": {"A": [{"POS": "00"}, {"NEG": "10"}],
                         "Y": [{"POS": "A6"}, {"NEG": "B6"}],
                         "SP": [{"POS": "A7"}, {"NEG": "B7"}]}}
 registros_indexados = {"SP", "X", "Y", "PC"}
+acumuladores = {"A", "B", "D"}
+valor_acumuladores = {"A": 0, "B": 1 ,"D": 2 }
 valor_registros_indexados = {"X": 0, "Y": 1, "SP": 2, "PC": 3}
 def conv_decimal(dato):
     if dato.startswith("$"):
@@ -508,25 +510,35 @@ def interpretar_instruccion(lista_mnemonicos, archivo_lst, org, segunda_parte):
             bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["REL"]
         for registro in registros_indexados:
             if registro in lista_mnemonicos[1]:
-                print("Linea: ", lista_mnemonicos[1],"\tRegistro encontrado: ",registro)
-                n = int(lista_mnemonicos[1].split(",")[0].replace("[", ""))
-                r = lista_mnemonicos[1].split(",")[1]
-                if n >= -16 and n <= 15:
-                    #Regla 1 rr0nnnnn
-                    bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX"]
-                elif n >= -256 and n <= 255 and "[" not in lista_mnemonicos[1]:
-                    #Regla 2 111rr0zs 9 bits
-                    bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX1"]
-                elif n >= -32768 and n <= 65535 and "[" not in lista_mnemonicos[1]:
-                    #Regla 2 111rr0zs 16 bits
-                    bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX2"]
-                elif n > 0 and n < 65535 and "[" in lista_mnemonicos[1]:
-                    #Regla 3 111rr011
-                    bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX2"]
+                #print("Linea: ", lista_mnemonicos[1],"\tRegistro encontrado: ",registro)
+                if lista_mnemonicos[1].split(",")[0].replace("[","") in acumuladores and lista_mnemonicos[1].split(",")[1].replace("]", "") in registros_indexados:
+                    if lista_mnemonicos[1].startswith("[") and lista_mnemonicos[1].endswith("]"):
+                        if lista_mnemonicos[1].split(",")[0].replace("[", "") == "D":
+                            bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["[D,IDX]"]
+                        else:
+                            archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", lista_mnemonicos[0] + "\tNO VALIDO") + "\n"
+                            segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
+                            return archivo_lst, org, segunda_parte
+                    bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["[D,IDX]"]
                 else:
-                    archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", lista_mnemonicos[0]) + "\n"
-                    segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
-                    return archivo_lst, org, segunda_parte
+                    n = int(lista_mnemonicos[1].split(",")[0].replace("[", ""))
+                    r = lista_mnemonicos[1].split(",")[1]
+                    if n >= -16 and n <= 15:
+                        #Regla 1 rr0nnnnn
+                        bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX"]
+                    elif n >= -256 and n <= 255 and "[" not in lista_mnemonicos[1]:
+                        #Regla 2 111rr0zs 9 bits
+                        bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX1"]
+                    elif n >= -32768 and n <= 65535 and "[" not in lista_mnemonicos[1]:
+                        #Regla 2 111rr0zs 16 bits
+                        bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX2"]
+                    elif n > 0 and n < 65535 and "[" in lista_mnemonicos[1]:
+                        #Regla 3 111rr011
+                        bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX2"]
+                    else:
+                        archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", lista_mnemonicos[0]) + "\n"
+                        segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
+                        return archivo_lst, org, segunda_parte
 
 
     else:
@@ -698,58 +710,81 @@ def calculo_de_saltos(instrucciones_parseadas, etiquetas):
                 pass
 
             elif linea[1][1] == "xb":
-                n = int(linea[2][1].split(",")[0].replace("[", "")) 
-                if linea[2][1].split(",")[1].replace("]", "") in valor_registros_indexados.keys():
+                if linea[2][1].split(",")[0].replace("[", "") in acumuladores and linea[2][1].split(",")[1].replace("]", "") in registros_indexados:
+                    #print(linea[2][1])
+                    a = valor_acumuladores[linea[2][1].split(",")[0].replace("[", "")]
                     r = valor_registros_indexados[linea[2][1].split(",")[1].replace("]", "")]
+                    if linea[2][1].startswith("[") and linea[2][1].endswith("]"):
+                        if linea[2][1].split(",")[0].replace("[", "") ==  "D":
+                            # Regla 6 111rr111
+                            print("Indexado Regla 6: ", linea[1], linea[2], end='')
+                            regla6 = 231 #11100111
+                            regla6 = regla6 | (r << 3)
+                            direccion_final_str = tohex(regla6, 8)[2:].upper()
+                            archivo_final[i][1][1] = direccion_final_str
+                            print("  -->  ", archivo_final[i])
+                    else:
+                        # Regla 5 111rr1aa
+                        print("Indexado Regla 5: ", linea[1], linea[2], end='')
+                        regla5 = 228 #11100100
+                        regla5 = regla5 | (r << 3)
+                        regla5 = regla5 | (a << 0)
+                        direccion_final_str = tohex(regla5, 8)[2:].upper()
+                        archivo_final[i][1][1] = direccion_final_str
+                        print("  -->  ", archivo_final[i])
+                else:
+                    n = int(linea[2][1].split(",")[0].replace("[", "")) 
+                    if linea[2][1].split(",")[1].replace("]", "") in valor_registros_indexados.keys():
+                        r = valor_registros_indexados[linea[2][1].split(",")[1].replace("]", "")]
 
-                if n >= -16 and n <= 15:
-                    #Regla 1 rr0nnnnn
-                    print("Indexado Regla 1: ",linea[1], linea[2], end='')
-                    regla1 = 0
-                    regla1 = regla1 | (r << 6) 
-                    regla1 = regla1 | int(tohex(n, 5), 16)
-                    direccion_final_str = tohex(regla1, 8)[2:].upper()
-                    archivo_final[i][1][1] = direccion_final_str
-                    print("  -->  ", archivo_final[i])
-                    
-                elif n >= -256 and n <= 255 and "[" not in linea[2][1]:
-                    #Regla 2 111rr0zs 9 bits
-                    print("Indexado Regla 2 (9 bits): ",linea[1], linea[2], end='')
-                    regla2 = 224 # 11100000
-                    regla2 = regla2 | (r << 3) # xxxrrxxx
-                    if n <= 0:
-                        regla2 = regla2 | (1 << 0) # xxxxxxxs
-                    direccion_final_str = tohex(regla2, 8)[2:].upper()
-                    archivo_final[i][1][1] = direccion_final_str
-                    archivo_final[i][1][2] = tohex(n, 8)[2:].upper()
-                    print("  -->  ", archivo_final[i])
-                elif n >= -32768 and n <= 65535 and "[" not in linea[2][1]:
-                    #Regla 2 111rr0zs 16 bits
-                    print("Indexado Regla 2 (16 bits): ",linea[1], linea[2], end='')
-                    regla2 = 224 # 11100000
-                    regla2 = regla2 | (r << 3) # xxxrrxxx
-                    if n <= 0:
-                        regla2 = regla2 | (1 << 0) # xxxxxxxs
-                    regla2 = regla2 | (1 << 1) # xxxxxxzx
-                    direccion_final_str = tohex(regla2, 8)[2:].upper()
-                    archivo_final[i][1][1] = direccion_final_str
-                    highbyte, lowbyte = dividir_en_bytes(n)
-                    archivo_final[i][1][2] = highbyte
-                    archivo_final[i][1][3] = lowbyte
-                    print("  -->  ", archivo_final[i])
-                    #pdb.set_trace()
+                    if n >= -16 and n <= 15:
+                        #Regla 1 rr0nnnnn
+                        print("Indexado Regla 1: ",linea[1], linea[2], end='')
+                        regla1 = 0
+                        regla1 = regla1 | (r << 6) 
+                        regla1 = regla1 | int(tohex(n, 5), 16)
+                        direccion_final_str = tohex(regla1, 8)[2:].upper()
+                        archivo_final[i][1][1] = direccion_final_str
+                        print("  -->  ", archivo_final[i])
+                        
+                    elif n >= -256 and n <= 255 and "[" not in linea[2][1]:
+                        #Regla 2 111rr0zs 9 bits
+                        print("Indexado Regla 2 (9 bits): ",linea[1], linea[2], end='')
+                        regla2 = 224 # 11100000
+                        regla2 = regla2 | (r << 3) # xxxrrxxx
+                        if n <= 0:
+                            regla2 = regla2 | (1 << 0) # xxxxxxxs
+                        direccion_final_str = tohex(regla2, 8)[2:].upper()
+                        archivo_final[i][1][1] = direccion_final_str
+                        archivo_final[i][1][2] = tohex(n, 8)[2:].upper()
+                        print("  -->  ", archivo_final[i])
+                    elif n >= -32768 and n <= 65535 and "[" not in linea[2][1]:
+                        #Regla 2 111rr0zs 16 bits
+                        print("Indexado Regla 2 (16 bits): ",linea[1], linea[2], end='')
+                        regla2 = 224 # 11100000
+                        regla2 = regla2 | (r << 3) # xxxrrxxx
+                        if n <= 0:
+                            regla2 = regla2 | (1 << 0) # xxxxxxxs
+                        regla2 = regla2 | (1 << 1) # xxxxxxzx
+                        direccion_final_str = tohex(regla2, 8)[2:].upper()
+                        archivo_final[i][1][1] = direccion_final_str
+                        highbyte, lowbyte = dividir_en_bytes(n)
+                        archivo_final[i][1][2] = highbyte
+                        archivo_final[i][1][3] = lowbyte
+                        print("  -->  ", archivo_final[i])
+                        #pdb.set_trace()
 
-                elif n > 0 and n < 65535 and "[" in linea[2][1]:
-                    #Regla 3 111rr011
-                    print("Indexado Regla 3 (16 bits): ",linea[1], linea[2], end='')
-                    regla3 = 227 # 11100011
-                    regla3 = regla3 | (r << 3) # xxxrrxxx
-                    direccion_final_str = tohex(regla3, 8)[2:].upper()
-                    archivo_final[i][1][1] = direccion_final_str
-                    highbyte, lowbyte = dividir_en_bytes(n)
-                    archivo_final[i][1][2] = highbyte
-                    archivo_final[i][1][3] = lowbyte
-                    print("  -->  ", archivo_final[i])
+                    elif n > 0 and n < 65535 and "[" in linea[2][1]:
+                        #Regla 3 111rr011
+                        print("Indexado Regla 3 (16 bits): ",linea[1], linea[2], end='')
+                        regla3 = 227 # 11100011
+                        regla3 = regla3 | (r << 3) # xxxrrxxx
+                        direccion_final_str = tohex(regla3, 8)[2:].upper()
+                        archivo_final[i][1][1] = direccion_final_str
+                        highbyte, lowbyte = dividir_en_bytes(n)
+                        archivo_final[i][1][2] = highbyte
+                        archivo_final[i][1][3] = lowbyte
+                        print("  -->  ", archivo_final[i])
             elif len(linea[1]) > 2:
                 if linea[1][2] == "qq":
                     print("Relativo 16: ", linea[1], linea[2], end='')
@@ -850,14 +885,14 @@ def main(filename):
     #print(segunda_parte)
     archivo_final = calculo_de_saltos(segunda_parte, etiquetas)
 
-    with open("P12.lst", "w") as file:
+    with open(f"{filename.replace('.asm','')}.lst", "w") as file:
         file.write(archivo_lista)
     
-    with open("P12.tabsim", "w") as file:
+    with open(f"{filename.replace('.asm','')}.tabsim", "w") as file:
         for k, v in etiquetas.items():
             file.writelines(v + "\t" + k + "\n")
     
-    with open("P12.lst2", "w") as file:
+    with open(f"{filename.replace('.asm','')}.lst2", "w") as file:
         for linea in archivo_final:
             linea_str = ""
             linea_str += linea[0] + " "
