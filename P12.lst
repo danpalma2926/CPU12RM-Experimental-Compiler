@@ -1,0 +1,21 @@
+0x4000   -- --          ORG
+0x4000   86 ii          LDAA   #20        LI=2
+0x4002   96 dd          LDAA   5          LI=2
+0x4004   A6 xb          LDAA   7,SP       LI=2
+0x4006   A6 xb          LDAA   -16,SP     LI=2
+0x4008   A6 xb ff       LDAA   34,PC      LI=3
+0x400b   A6 xb ff       LDAA   16,SP      LI=3
+0x400e   A6 xb ee ff    LDAA   256,SP     LI=4
+0x4012   A6 xb ee ff    LDAA   [16,SP]    LI=4
+0x4016   A6 xb ee ff    LDAA   [256,SP]   LI=4
+0x401a   -- --          LDAA
+0x401a   04 lb rr       IBNE   A,E4       LI=3
+0x401d   06 hh ll       JMP    E4         LI=3
+0x4020   06 hh ll       JMP    E5         LI=3
+0x4023   26 rr          BNE    E4         LI=2
+0x4025   26 rr          BNE    E5         LI=2
+0x4027   00 00 00 00 00              BSZ
+0x402c   04 04 04 04 04 04             FILL
+0x0000   -- --          START
+0x0000   00 00 00 00 00 00              BSZ
+0x0006   -- --          END
