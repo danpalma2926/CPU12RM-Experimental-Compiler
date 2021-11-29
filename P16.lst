@@ -1,0 +1,41 @@
+0x4000   -- --          ORG
+0x4000   86 ii          LDAA   #20        LI=2
+0x4002   86 ii          LDAA   #32        LI=2
+0x4004   86 ii          LDAA   #5         LI=2
+0x4006   86 ii          LDAA   #16        LI=2
+0x4008   96 dd          LDAA   20         LI=2
+0x400a   96 dd          LDAA   32         LI=2
+0x400c   96 dd          LDAA   5          LI=2
+0x400e   96 dd          LDAA   16         LI=2
+0x4010   26 rr          BNE    16384      LI=2
+0x4012   26 rr          BNE    ET1        LI=2
+0x4014   26 rr          BNE    ET2        LI=2
+0x4016   26 rr          BNE    16512      LI=2
+0x4018   18 26 qq rr    LBNE   16384      LI=4
+0x401c   18 26 qq rr    LBNE   ET1        LI=4
+0x4020   18 26 qq rr    LBNE   ET2        LI=4
+0x4024   18 26 qq rr    LBNE   16512      LI=4
+0x4028   04 lb rr       IBNE   A,$4000    LI=3
+0x402b   04 lb rr       IBNE   A,ET1      LI=3
+0x402e   04 lb rr       IBNE   A,ET2      LI=3
+0x4031   04 lb rr       IBNE   A,$4080    LI=3
+0x4034   A6 xb          LDAA   7,SP       LI=2
+0x4036   A6 xb          LDAA   -7,SP      LI=2
+0x4038   A6 xb ff       LDAA   70,SP      LI=3
+0x403b   A6 xb ff       LDAA   -70,SP     LI=3
+0x403e   A6 xb ee ff    LDAA   700,SP     LI=4
+0x4042   A6 xb ee ff    LDAA   -700,SP    LI=4
+0x4046   A6 xb ee ff    LDAA   [16,SP]    LI=4
+0x404a   A6 xb ee ff    LDAA   [16,SP]    LI=4
+0x404e   A6 xb          LDAA   5,Y        LI=2
+0x4050   A6 xb          LDAA   5,Y+       LI=2
+0x4052   A6 xb          LDAA   5,+Y       LI=2
+0x4054   A6 xb          LDAA   5,Y-       LI=2
+0x4056   A6 xb          LDAA   5,-Y       LI=2
+0x4058   -- --          LDAA
+0x4058   -- --          LDAA	NO VALIDO
+0x4058   A6 xb          LDAA   [D,SP]     LI=2
+0x405a   -- --          LDAA
+0x405a   A6 xb          LDAA   A,SP       LI=2
+0x405c   A6 xb          LDAA   D,SP       LI=2
+0x405e   -- --          END

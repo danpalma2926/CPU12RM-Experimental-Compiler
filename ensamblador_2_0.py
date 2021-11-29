@@ -170,17 +170,55 @@ mnemonicos = {"ABA": {"INH": ["18","06"]},
                        "IDX2": ["E1", "xb", "ee", "ff"],
                        "[D,IDX]": ["E1", "xb"],
                        "[IDX2]": ["E1", "xb", "ee", "ff"]},
-              "COM": {},
+              "COM": {"EXT": ["71", "hh", "ll"],
+                       "IDX": ["61", "xb"],
+                       "IDX1": ["61", "xb", "ff"],
+                       "IDX2": ["61", "xb", "ee", "ff"],
+                       "[D,IDX]": ["61", "xb"],
+                       "[IDX2]": ["61", "xb", "ee", "ff"]},
               "COMA": {"INH": ["41"]},
               "COMB": {"INH": ["51"]},
-              "CPD": {},
-              "CPS": {},
-              "CPX": {},
-              "CPY": {},
+              "CPD": {"IMM": ["8C", "jj", "kk"],
+                       "DIR": ["9C", "dd"],
+                       "EXT": ["BC", "hh", "ll"],
+                       "IDX": ["AC", "xb"],
+                       "IDX1": ["AC", "xb", "ff"],
+                       "IDX2": ["AC", "xb", "ee", "ff"],
+                       "[D,IDX]": ["AC", "xb"],
+                       "[IDX2]": ["AC", "xb", "ee", "ff"]},
+              "CPS": {"IMM": ["8F", "jj", "kk"],
+                       "DIR": ["9F", "dd"],
+                       "EXT": ["BF", "hh", "ll"],
+                       "IDX": ["AF", "xb"],
+                       "IDX1": ["AF", "xb", "ff"],
+                       "IDX2": ["AF", "xb", "ee", "ff"],
+                       "[D,IDX]": ["AF", "xb"],
+                       "[IDX2]": ["AF", "xb", "ee", "ff"]},
+              "CPX": {"IMM": ["8E", "jj", "kk"],
+                       "DIR": ["9E", "dd"],
+                       "EXT": ["BE", "hh", "ll"],
+                       "IDX": ["AE", "xb"],
+                       "IDX1": ["AE", "xb", "ff"],
+                       "IDX2": ["AE", "xb", "ee", "ff"],
+                       "[D,IDX]": ["AE", "xb"],
+                       "[IDX2]": ["AE", "xb", "ee", "ff"]},
+              "CPY": {"IMM": ["8D", "jj", "kk"],
+                       "DIR": ["9D", "dd"],
+                       "EXT": ["BD", "hh", "ll"],
+                       "IDX": ["AD", "xb"],
+                       "IDX1": ["AD", "xb", "ff"],
+                       "IDX2": ["AD", "xb", "ee", "ff"],
+                       "[D,IDX]": ["AD", "xb"],
+                       "[IDX2]": ["AD", "xb", "ee", "ff"]},
               "DAA": {"INH": ["18", "07"]},
               "DBEQ": {"REL": ["04", "lb", "rr"]},
               "DBNE": {"REL": ["04", "lb", "rr"]},
-              "DEC": {},
+              "DEC": { "EXT": ["73", "hh", "ll"],
+                       "IDX": ["63", "xb"],
+                       "IDX1": ["63", "xb", "ff"],
+                       "IDX2": ["63", "xb", "ee", "ff"],
+                       "[D,IDX]": ["63", "xb"],
+                       "[IDX2]": ["63", "xb", "ee", "ff"]},
               "DECA": {"INH": ["43"]},
               "DECB": {"INH": ["53"]},
               "DES": {"IDX": ["1B", "9F"]},
@@ -189,14 +227,44 @@ mnemonicos = {"ABA": {"INH": ["18","06"]},
               "EDIV": {"INH": ["11"]},
               "EDIVS": {"INH": ["18", "14"]},
               "EMACS": {"Special": ["18", "12", "hh", "ll"]},
-              "EMAXD": {},
-              "EMAXM": {},
-              "EMIND": {},
-              "EMINM": {},
+              "EMAXD": {"IDX": ["18", "1A", "xb"],
+                        "IDX1": ["18", "1A", "xb", "ff"],
+                        "IDX2": ["18", "1A", "xb", "ee", "ff"],
+                        "[D,IDX]": ["18", "1A", "xb"],
+                        "[IDX2]": ["18", "1A", "xb", "ee", "ff"]},
+              "EMAXM": {"IDX": ["18", "1E", "xb"],
+                        "IDX1": ["18", "1E", "xb", "ff"],
+                        "IDX2": ["18", "1E", "xb", "ee", "ff"],
+                        "[D,IDX]": ["18", "1E", "xb"],
+                        "[IDX2]": ["18", "1E", "xb", "ee", "ff"]},
+              "EMIND": {"IDX": ["18", "1B", "xb"],
+                        "IDX1": ["18", "1B", "xb", "ff"],
+                        "IDX2": ["18", "1B", "xb", "ee", "ff"],
+                        "[D,IDX]": ["18", "1B", "xb"],
+                        "[IDX2]": ["18", "1B", "xb", "ee", "ff"]},
+              "EMINM": {"IDX": ["18", "1F", "xb"],
+                        "IDX1": ["18", "1F", "xb", "ff"],
+                        "IDX2": ["18", "1F", "xb", "ee", "ff"],
+                        "[D,IDX]": ["18", "1F", "xb"],
+                        "[IDX2]": ["18", "1F", "xb", "ee", "ff"]},
               "EMUL": {"INH": ["13"]},
               "EMULS": {"INH": ["18", "13"]},
-              "EORA": {},
-              "EORB": {},
+              "EORA": {"IMM": ["88", "jj", "kk"],
+                       "DIR": ["98", "dd"],
+                       "EXT": ["B8", "hh", "ll"],
+                       "IDX": ["A8", "xb"],
+                       "IDX1": ["A8", "xb", "ff"],
+                       "IDX2": ["A8", "xb", "ee", "ff"],
+                       "[D,IDX]": ["A8", "xb"],
+                       "[IDX2]": ["A8", "xb", "ee", "ff"]},
+              "EORB": {"IMM": ["C8", "jj", "kk"],
+                       "DIR": ["D8", "dd"],
+                       "EXT": ["F8", "hh", "ll"],
+                       "IDX": ["E8", "xb"],
+                       "IDX1": ["E8", "xb", "ff"],
+                       "IDX2": ["E8", "xb", "ee", "ff"],
+                       "[D,IDX]": ["E8", "xb"],
+                       "[IDX2]": ["E8", "xb", "ee", "ff"]},
               "ETBL": {"IDX": ["18", "3F", "xb"]},
               "EXG": {"INH": ["B7", "eb"]},
               "FDIV": {"INH": ["18", "11"]},
@@ -204,19 +272,30 @@ mnemonicos = {"ABA": {"INH": ["18","06"]},
               "IBNE": {"REL": ["04", "lb", "rr"]},
               "IDIV": {"INH": ["18", "10"]},
               "IDIVS": {"INH": ["18", "15"]},
-              "INC": {},
+              "INC": { "EXT": ["72", "hh", "ll"],
+                       "IDX": ["62", "xb"],
+                       "IDX1": ["62", "xb", "ff"],
+                       "IDX2": ["62", "xb", "ee", "ff"],
+                       "[D,IDX]": ["62", "xb"],
+                       "[IDX2]": ["62", "xb", "ee", "ff"]},
               "INCA": {"INH": ["42"]},
               "INCB": {"INH": ["52"]},
               "INS": {"IDX": ["1B", "81"]},
               "INX": {"INH": ["08"]},
               "INY": {"INH": ["02"]},
-              "JMP": {"EXT": ["06", "hh", "ll"], #possible error (?) orig ["06", "hh", "ll"]
+              "JMP": {"EXT": ["06", "hh", "ll"],
                       "IDX": ["05", "xb"],
                       "IDX1": ["05", "xb", "ff"],
                       "IDX2": ["05", "xb", "ee", "ff"],
                       "[D,IDX]": ["05", "xb"],
                       "[IDX2]": ["05", "xb", "ee", "ff"]},
-              "JSR": {},
+              "JSR": { "DIR": ["17", "dd"],
+                       "EXT": ["16", "hh", "ll"],
+                       "IDX": ["15", "xb"],
+                       "IDX1": ["15", "xb", "ff"],
+                       "IDX2": ["15", "xb", "ee", "ff"],
+                       "[D,IDX]": ["15", "xb"],
+                       "[IDX2]": ["15", "xb", "ee", "ff"]},
               "LBCC": {"REL": ["18", "24", "qq", "rr"]},
               "LBCS": {"REL": ["18", "25", "qq", "rr"]},
               "LBEQ": {"REL": ["18", "27", "qq", "rr"]},
@@ -241,7 +320,14 @@ mnemonicos = {"ABA": {"INH": ["18","06"]},
                        "IDX2": ["A6", "xb", "ee", "ff"],
                        "[D,IDX]": ["A6", "xb"],
                        "[IDX2]": ["A6", "xb", "ee", "ff"]},
-              "LDAB": {},
+              "LDAB": {"IMM": ["C6", "ii"],
+                       "DIR": ["D6", "dd"],
+                       "EXT": ["F6", "hh", "ll"],
+                       "IDX": ["E6", "xb"],
+                       "IDX1": ["E6", "xb", "ff"],
+                       "IDX2": ["E6", "xb", "ee", "ff"],
+                       "[D,IDX]": ["E6", "xb"],
+                       "[IDX2]": ["E6", "xb", "ee", "ff"]},
               "LDD": {},
               "LDS": {},
               "LDX": {},
@@ -521,9 +607,23 @@ def interpretar_instruccion(lista_mnemonicos, archivo_lst, org, segunda_parte):
                             return archivo_lst, org, segunda_parte
                     bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["[D,IDX]"]
                 else:
-                    n = int(lista_mnemonicos[1].split(",")[0].replace("[", ""))
-                    r = lista_mnemonicos[1].split(",")[1]
-                    if n >= -16 and n <= 15:
+                    print(lista_mnemonicos[1].split(","))
+                    if lista_mnemonicos[1].split(",")[0] == "":
+                        n = 0
+                        r = lista_mnemonicos[1].replace(",", "")
+                    else:
+                        n = int(lista_mnemonicos[1].split(",")[0].replace("[", ""))
+                        r = lista_mnemonicos[1].split(",")[1]
+                    #pdb.set_trace()
+                    if "+" in r or "-" in r and ("[" not in r or "]" not in r):
+                        #Regla 4 rr1pnnnn
+                        if n >= -8 and n <= 8 and (r.replace("+","").replace("-","") != "PC"):
+                            bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX"]
+                        else:
+                            archivo_lst += "{:8s} {:14s} {}".format("0x" + hex(org)[2:].zfill(4), "-- --", lista_mnemonicos[0]) + "\n"
+                            segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
+                            return archivo_lst, org, segunda_parte
+                    elif n >= -16 and n <= 15:
                         #Regla 1 rr0nnnnn
                         bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["IDX"]
                     elif n >= -256 and n <= 255 and "[" not in lista_mnemonicos[1]:
@@ -540,7 +640,6 @@ def interpretar_instruccion(lista_mnemonicos, archivo_lst, org, segunda_parte):
                         segunda_parte.append(["0x" + hex(org)[2:].zfill(4), list(["--", "--"]), lista_mnemonicos])
                         return archivo_lst, org, segunda_parte
 
-
     else:
         
         valor = conv_decimal(lista_mnemonicos[1])
@@ -550,7 +649,8 @@ def interpretar_instruccion(lista_mnemonicos, archivo_lst, org, segunda_parte):
             elif valor < 65536:
                 bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["EXT"]
         except KeyError as e:
-            archivo_lst += f"'{lista_mnemonicos[0]} {lista_mnemonicos[1]}' no es compatible con los modos de direccionamiento soportados"
+            bytes_instruccion = mnemonicos[lista_mnemonicos[0]]["REL"]
+            #archivo_lst += f"'{lista_mnemonicos[0]} {lista_mnemonicos[1]}' no es compatible con los modos de direccionamiento soportados"
             #break;
     byte_str = ""
     for byte in bytes_instruccion:
@@ -661,8 +761,11 @@ def calculo_de_saltos(instrucciones_parseadas, etiquetas):
                 print("Relativo: ", linea[1], linea[2], end="")
                 if linea[2][1] in etiquetas:
                     archivo_final[i][2][1] = etiquetas[linea[2][1]]
+                    direccion_salto = int(archivo_final[i][2][1],16)
+                else:
+                    direccion_salto = int(archivo_final[i][2][1])
+                    archivo_final[i][2][1] = hex(int(linea[2][1]))[2:]
                 direccion_actual = int(linea[0][2:],16) + len(linea[1])
-                direccion_salto = int(archivo_final[i][2][1],16)
                 direccion_final = direccion_salto - direccion_actual
                 direccion_final_str = tohex(direccion_final, 8)[2:].upper()
                 #condicionales validacion de rango
@@ -687,6 +790,8 @@ def calculo_de_saltos(instrucciones_parseadas, etiquetas):
                 #dividir mnemonico
                 registro = linea[2][1].split(",")[0]
                 direccion_salto = linea[2][1].split(",")[1]
+                if direccion_salto.startswith("$"):
+                    direccion_salto = conv_decimal(direccion_salto)
 
                 if direccion_salto in etiquetas:
                     archivo_final[i][2][1] = archivo_final[i][2][1].replace(direccion_salto ,etiquetas[direccion_salto])
@@ -733,12 +838,41 @@ def calculo_de_saltos(instrucciones_parseadas, etiquetas):
                         archivo_final[i][1][1] = direccion_final_str
                         print("  -->  ", archivo_final[i])
                 else:
-                    n = int(linea[2][1].split(",")[0].replace("[", "")) 
-                    if linea[2][1].split(",")[1].replace("]", "") in valor_registros_indexados.keys():
-                        r = valor_registros_indexados[linea[2][1].split(",")[1].replace("]", "")]
+                    if linea[2][1].split(",")[0] == "":
+                        n = 0
+                    else:
+                        n = int(linea[2][1].split(",")[0].replace("[", "")) 
+                    if linea[2][1].split(",")[1].replace("]", "").replace("+", "").replace("-", "") in valor_registros_indexados.keys():
+                        #pdb.set_trace()
+                        r = valor_registros_indexados[linea[2][1].split(",")[1].replace("]", "").replace("+", "").replace("-", "")]
+                    if n >= -8 and n <= 8 and ("+" in linea[2][1].split(",")[1] or "-" in linea[2][1].split(",")[1]):
+                        #pdb.set_trace()
+                        #Regla 4 rr1pnnnn
+                        print("Indexado Regla 4: ", linea[1], linea[2], end='')
+                        regla4 = 32 # 00100000
+                        regla4 = regla4 | (r << 6)
+                        if linea[2][1].split(",")[1].replace("]", "").endswith("+") or linea[2][1].split(",")[1].replace("]", "").endswith("-"):
+                            p = 1
+                            
+                        elif linea[2][1].split(",")[1].replace("]", "").startswith("+") or linea[2][1].split(",")[1].replace("]", "").startswith("-"):
+                            #pdb.set_trace()
+                            p = 0
+                        if "+" in linea[2][1].split(",")[1].replace("]", ""):
+                            n = n - 1
+                        elif "-" in linea[2][1].split(",")[1].replace("]", ""):
+                            n_mask = 15
+                            n = ~(n- 1) & n_mask
+                        regla4 = regla4 | (p << 4)          
+                        regla4 = regla4 | (n << 0)
+                        #pdb.set_trace()
+                        direccion_final_str = tohex(regla4, 8)[2:].upper()
+                        archivo_final[i][1][1] = direccion_final_str
+                        print("  -->  ", archivo_final[i])
+                        
 
-                    if n >= -16 and n <= 15:
+                    elif n >= -16 and n <= 15:
                         #Regla 1 rr0nnnnn
+                        #pdb.set_trace()
                         print("Indexado Regla 1: ",linea[1], linea[2], end='')
                         regla1 = 0
                         regla1 = regla1 | (r << 6) 
@@ -790,8 +924,12 @@ def calculo_de_saltos(instrucciones_parseadas, etiquetas):
                     print("Relativo 16: ", linea[1], linea[2], end='')
                     if linea[2][1] in etiquetas:
                         archivo_final[i][2][1] = etiquetas[linea[2][1]]
+                        direccion_salto = int(archivo_final[i][2][1],16)
+                    else:
+                        direccion_salto = int(archivo_final[i][2][1])
+                        archivo_final[i][2][1] = hex(int(linea[2][1]))[2:]
                     direccion_actual = int(linea[0][2:],16) + len(linea[1])
-                    direccion_salto = int(archivo_final[i][2][1],16)
+                    #direccion_salto = int(archivo_final[i][2][1],16)
                     direccion_final = direccion_salto - direccion_actual
                     direccion_final_str = tohex(direccion_final, 16)[2:].upper()
                     #condicionales validacion de rango
@@ -803,7 +941,9 @@ def calculo_de_saltos(instrucciones_parseadas, etiquetas):
                         print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
                         print("  -->  ", archivo_final[i], "Salto Negativo")
                     elif direccion_salto > direccion_actual and direccion_final < 32767:
-                        archivo_final[i][1][2] = direccion_final_str
+                        highbyte, lowbyte = dividir_en_bytes(direccion_final)
+                        archivo_final[i][1][2] = highbyte
+                        archivo_final[i][1][3] = lowbyte
                         print("  --> direccion actual: ", hex(direccion_actual), "  --> direccion salto: ", hex(direccion_salto), end='')
                         print("  -->  ", archivo_final[i], "Salto Positivo")
                     else:
@@ -827,9 +967,9 @@ def main(filename):
 
     archivo_convertido = convertir_variables_a_decimales(linea_instrucciones)
 
-    #print("\nAFTER: ****************************")
-    #for linea in archivo_convertido:
-        #print(linea)
+    print("\nAFTER: ****************************")
+    for linea in archivo_convertido:
+        print(linea)
     org = 0
     archivo_lista = ""
     etiquetas = {}
